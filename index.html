@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#000000" />
+  <title>LegFlow Web V3</title>
+  <style>
+    :root{--bg:#000;--card:#17181c;--card2:#22232a;--txt:#f5f5f7;--muted:#9a9aa2;--blue:#0a84ff;--green:#30d158;--red:#ff453a;--orange:#ff9f0a;--line:#343640}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;padding:18px 14px 90px;max-width:520px;margin-inline:auto}
+    h1{font-size:32px;margin:8px 0 16px;letter-spacing:-.04em}.top{display:flex;align-items:center;gap:12px}.logo{width:48px;height:48px;border-radius:14px;background:linear-gradient(145deg,#112,#063b72);display:grid;place-items:center;font-size:25px;box-shadow:0 8px 30px #0a84ff35}.sub{color:var(--muted);font-size:14px;margin-top:-10px;margin-bottom:16px}
+    .card{background:var(--card);border:1px solid #2a2b31;border-radius:22px;padding:16px;margin:12px 0;box-shadow:0 12px 30px #0008}.row{display:flex;justify-content:space-between;align-items:center;gap:12px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.value{font-size:26px;font-weight:750;letter-spacing:-.03em}.small{font-size:14px;color:var(--muted)}
+    input,textarea,select{width:100%;background:#0d0e12;border:1px solid #333640;color:var(--txt);border-radius:14px;padding:13px;font-size:18px;outline:none}textarea{min-height:120px;font-size:15px;line-height:1.4}.iata{text-transform:uppercase;text-align:center;font-weight:800;letter-spacing:.08em}.btn{width:100%;border:0;border-radius:18px;padding:17px 16px;margin-top:10px;font-size:18px;font-weight:800;color:white;background:var(--blue);cursor:pointer}.btn.secondary{background:var(--card2);color:var(--txt);border:1px solid #393b44}.btn.green{background:var(--green);color:#001b08}.btn.red{background:var(--red)}.btn.orange{background:var(--orange);color:#211100}.btn:active{transform:scale(.99)}
+    .tabs{position:fixed;bottom:0;left:0;right:0;background:#0b0b0dcc;border-top:1px solid #2a2b31;backdrop-filter:blur(18px);display:flex;justify-content:center;padding:8px 8px max(8px,env(safe-area-inset-bottom));z-index:10}.tabbar{display:flex;gap:6px;width:min(520px,100%)}.tab{flex:1;background:transparent;border:0;color:var(--muted);padding:10px 4px;border-radius:14px;font-size:12px;font-weight:700}.tab.active{background:#1b1c22;color:var(--txt)}
+    .timeline{display:flex;align-items:center;justify-content:space-between;margin:18px 4px}.dotWrap{display:flex;flex-direction:column;align-items:center;gap:8px;width:25%}.dot{width:22px;height:22px;border-radius:999px;background:#41434d;border:3px solid #60636f}.dot.done{background:var(--green);border-color:var(--green);box-shadow:0 0 20px #30d15855}.dotLabel{font-size:11px;color:var(--muted);text-align:center}.line{height:3px;background:#41434d;flex:1;margin:0 -18px 24px}.timeRow{display:grid;grid-template-columns:1fr 88px 44px;gap:8px;align-items:center;margin:8px 0}.timeInput{font-size:18px;text-align:center;padding:10px}.editBtn{background:#2b2d35;color:#fff;border:0;border-radius:12px;padding:11px 4px}.toast{position:fixed;left:50%;bottom:86px;transform:translateX(-50%);background:#23242b;color:#fff;border:1px solid #3a3c45;border-radius:16px;padding:12px 16px;display:none;z-index:20}.okBox{border-radius:18px;padding:14px;text-align:center;font-weight:900;margin-top:10px}.ok{background:#11391f;color:var(--green);border:1px solid #1d7d3a}.bad{background:#3a1412;color:var(--red);border:1px solid #92302b}.hide{display:none}.mono{font-variant-numeric:tabular-nums}.ops{white-space:pre-wrap;background:#0d0e12;border:1px solid #333640;border-radius:16px;padding:14px;color:#e8e8ee;font-size:14px;line-height:1.45}.pill{display:inline-block;background:#23252d;border:1px solid #3a3d47;border-radius:999px;padding:8px 10px;margin:4px 3px;font-size:12px;color:#d6d6dc}.sectionTitle{font-size:20px;font-weight:850;margin:18px 0 8px}.warn{color:var(--orange);font-size:13px;margin-top:8px}.success{color:var(--green)}
+  </style>
+</head>
+<body>
+  <div class="top"><div class="logo">✈︎</div><div><h1>LegFlow</h1><div class="sub">Multi-leg fuel & time log</div></div></div>
+
+  <main id="flight" class="view">
+    <div class="card">
+      <div class="row"><div><div class="label">Current Leg</div><div class="value"><span id="depTxt">PPT</span> → <span id="arrTxt">RFP</span></div></div><div class="small mono" id="modeTxt">UTC</div></div>
+      <div class="grid" style="margin-top:14px">
+        <div><div class="label">From</div><input id="dep" class="iata" maxlength="3" value="PPT"></div>
+        <div><div class="label">To</div><input id="arr" class="iata" maxlength="3" value="RFP"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="grid">
+        <div><div class="label">Fuel Start</div><input id="fuelStart" inputmode="numeric" value="2300"></div>
+        <div><div class="label">Fuel Remaining</div><input id="fuelRemaining" inputmode="numeric" placeholder="Arrivée"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="label">Progress</div>
+      <div class="timeline">
+        <div class="dotWrap"><div id="d0" class="dot"></div><div class="dotLabel">Block<br>Off</div></div><div class="line"></div>
+        <div class="dotWrap"><div id="d1" class="dot"></div><div class="dotLabel">Take<br>Off</div></div><div class="line"></div>
+        <div class="dotWrap"><div id="d2" class="dot"></div><div class="dotLabel">Landing</div></div><div class="line"></div>
+        <div class="dotWrap"><div id="d3" class="dot"></div><div class="dotLabel">Block<br>On</div></div>
+      </div>
+      <button id="mainBtn" class="btn">BLOCK OFF</button>
+      <button id="undoBtn" class="btn secondary hide">↩ Undo last time</button>
+    </div>
+
+    <div class="card">
+      <div class="sectionTitle">Times — editable</div>
+      <div class="small">Tu peux modifier manuellement chaque horaire au format HHMM, ex : 1842.</div>
+      <div id="timeRows"></div>
+      <div id="timeWarning" class="warn"></div>
+    </div>
+
+    <div class="card">
+      <div class="grid">
+        <div><div class="label">Flight Time</div><div class="value mono" id="flightTime">--:--</div></div>
+        <div><div class="label">Block Time</div><div class="value mono" id="blockTime">--:--</div></div>
+        <div><div class="label">Total Flight</div><div class="value mono" id="totalFlight">00:00</div></div>
+        <div><div class="label">Total Block</div><div class="value mono" id="totalBlock">00:00</div></div>
+      </div>
+      <button id="sendOps" class="btn green">SEND OPS / COPY</button>
+      <button id="nextLeg" class="btn">NEXT LEG</button>
+      <div class="ops" id="opsPreview" style="margin-top:12px"></div>
+    </div>
+  </main>
+
+  <main id="refuelling" class="view hide">
+    <div class="card"><div class="label">Refuelling</div><div class="value">Fuel Calculator</div></div>
+    <div class="card">
+      <div class="grid">
+        <div><div class="label">Fuel Remaining</div><input id="refFuelRemaining" inputmode="numeric" placeholder="kg"></div>
+        <div><div class="label">Fuel Departure Required</div><input id="fuelRequired" inputmode="numeric" value="2300"></div>
+        <div><div class="label">Specific Gravity</div><input id="density" inputmode="decimal" value="0.785"></div>
+        <div><div class="label">Actual Fuel Added</div><input id="litresAdded" inputmode="decimal" placeholder="litres"></div>
+      </div>
+      <div class="grid" style="margin-top:14px">
+        <div><div class="label">Qty to Refuel</div><div class="value mono" id="qtyKg">0 kg</div></div>
+        <div><div class="label">Litres Required</div><div class="value mono" id="litresReq">0 L</div></div>
+        <div><div class="label">Fuel Added</div><div class="value mono" id="fuelAddedKg">0 kg</div></div>
+        <div><div class="label">Final Fuel</div><div class="value mono" id="finalFuel">0 kg</div></div>
+      </div>
+      <div id="targetBox" class="okBox bad">BELOW TARGET</div>
+      <button id="applyRefuel" class="btn green">APPLY TO CURRENT LEG</button>
+      <div class="small" style="margin-top:10px">Le Fuel Remaining peut être modifié ici manuellement. Le résultat final sera ajouté à l’étape actuelle.</div>
+    </div>
+  </main>
+
+  <main id="rotation" class="view hide">
+    <div class="card"><div class="label">Rotation</div><div class="value">Today's Legs</div></div>
+    <div class="card" id="legsList"></div>
+    <div class="card"><div class="grid"><div><div class="label">Total Flight</div><div class="value mono" id="rotFlight">00:00</div></div><div><div class="label">Total Block</div><div class="value mono" id="rotBlock">00:00</div></div></div><button id="resetAll" class="btn red">RESET ROTATION</button></div>
+  </main>
+
+  <main id="settings" class="view hide">
+    <div class="card"><div class="label">Settings</div><div class="value">OPS Template</div></div>
+    <div class="card">
+      <div class="label">Time Mode</div><select id="timeMode"><option value="UTC">UTC</option><option value="LT">LT</option></select>
+      <div class="sectionTitle">OPS Message Template</div>
+      <textarea id="template"></textarea>
+      <div class="sectionTitle">Variables</div>
+      <span class="pill">{DEP}</span><span class="pill">{ARR}</span><span class="pill">{FUEL_START}</span><span class="pill">{FUEL_REMAINING}</span><span class="pill">{FUEL_NEXT}</span><span class="pill">{BLOCK_OFF}</span><span class="pill">{TAKE_OFF}</span><span class="pill">{LANDING}</span><span class="pill">{BLOCK_ON}</span><span class="pill">{FLIGHT_TIME}</span><span class="pill">{BLOCK_TIME}</span>
+      <button id="saveSettings" class="btn green">SAVE SETTINGS</button>
+    </div>
+  </main>
+
+  <div class="toast" id="toast"></div>
+  <nav class="tabs"><div class="tabbar"><button class="tab active" data-tab="flight">✈️<br>Flight</button><button class="tab" data-tab="refuelling">⛽<br>Refuel</button><button class="tab" data-tab="rotation">🗺️<br>Rotation</button><button class="tab" data-tab="settings">⚙️<br>Settings</button></div></nav>
+
+<script>
+const defaultTemplate = `{DEP}-{ARR} ; Fuel Dep: {FUEL_START} kg ; Block-Off: {BLOCK_OFF} / Take-Off: {TAKE_OFF} / Landing: {LANDING} / Block-On: {BLOCK_ON} ; Flight Time: {FLIGHT_TIME} ; Block Time: {BLOCK_TIME} ; Fuel Next Leg: {FUEL_NEXT} kg`;
+const events = ["blockOff","takeOff","landing","blockOn"];
+const labels = {blockOff:"Block-Off", takeOff:"Take-Off", landing:"Landing", blockOn:"Block-On"};
+let state = JSON.parse(localStorage.getItem('legflow-v3')||'null') || {dep:'PPT',arr:'RFP',fuelStart:'2300',fuelRemaining:'',times:{},legs:[],mode:'UTC',template:defaultTemplate,last:null};
+function save(){localStorage.setItem('legflow-v3',JSON.stringify(state));}
+function $(id){return document.getElementById(id)}
+function toast(msg){$('toast').textContent=msg;$('toast').style.display='block';setTimeout(()=>$('toast').style.display='none',1800)}
+function nowHHMM(){const d=new Date(); const h=state.mode==='UTC'?d.getUTCHours():d.getHours(); const m=state.mode==='UTC'?d.getUTCMinutes():d.getMinutes(); return String(h).padStart(2,'0')+String(m).padStart(2,'0')}
+function fmt(v){ if(!v) return '--:--'; v=String(v).replace(/\D/g,'').padStart(4,'0').slice(-4); return v.slice(0,2)+':'+v.slice(2)+(state.mode==='UTC'?'Z':'');}
+function mins(v){ if(!v) return null; v=String(v).replace(/\D/g,'').padStart(4,'0').slice(-4); let h=+v.slice(0,2), m=+v.slice(2); if(h>23||m>59) return null; return h*60+m;}
+function dur(a,b){ let A=mins(a),B=mins(b); if(A==null||B==null) return null; if(B<A) B+=1440; return B-A;}
+function durFmt(min){ if(min==null) return '--:--'; return String(Math.floor(min/60)).padStart(2,'0')+':'+String(min%60).padStart(2,'0')}
+function currentStep(){return events.findIndex(e=>!state.times[e]);}
+function flightMin(){return dur(state.times.takeOff,state.times.landing)}
+function blockMin(){return dur(state.times.blockOff,state.times.blockOn)}
+function totals(){let f=0,b=0; state.legs.forEach(l=>{f+=l.flightMin||0;b+=l.blockMin||0}); f+=flightMin()||0; b+=blockMin()||0; return {f,b}}
+function opsMessage(){let msg=state.template||defaultTemplate; const reps={DEP:state.dep,ARR:state.arr,FUEL_START:state.fuelStart||'',FUEL_REMAINING:state.fuelRemaining||'',FUEL_NEXT:state.fuelRemaining||'',BLOCK_OFF:fmt(state.times.blockOff),TAKE_OFF:fmt(state.times.takeOff),LANDING:fmt(state.times.landing),BLOCK_ON:fmt(state.times.blockOn),FLIGHT_TIME:durFmt(flightMin()),BLOCK_TIME:durFmt(blockMin())}; Object.entries(reps).forEach(([k,v])=>msg=msg.replaceAll(`{${k}}`,v)); return msg}
+function validateTimes(){const seq=events.map(e=>mins(state.times[e])); for(let i=1;i<seq.length;i++){ if(seq[i]!=null && seq[i-1]!=null){let prev=seq[i-1], cur=seq[i]; if(cur<prev && prev-cur<720) return `${labels[events[i]]} ne peut pas être avant ${labels[events[i-1]]}.`; }} return ''}
+function updateDerived(){
+ events.forEach((e,i)=>$("d"+i).className='dot '+(state.times[e]?'done':''));
+ const step=currentStep(); $('mainBtn').textContent = step===-1 ? 'LEG COMPLETE' : labels[events[step]].toUpperCase(); $('mainBtn').className='btn '+(step===2?'orange':step===3?'secondary':''); $('undoBtn').classList.toggle('hide', !state.last);
+ $('flightTime').textContent=durFmt(flightMin()); $('blockTime').textContent=durFmt(blockMin()); const t=totals(); $('totalFlight').textContent=durFmt(t.f); $('totalBlock').textContent=durFmt(t.b); $('rotFlight').textContent=durFmt(t.f); $('rotBlock').textContent=durFmt(t.b); $('timeWarning').textContent=validateTimes(); $('opsPreview').textContent=opsMessage();
+ renderLegs(); save();
+}
+function render(){
+ $('dep').value=state.dep; $('arr').value=state.arr; $('depTxt').textContent=state.dep||'---'; $('arrTxt').textContent=state.arr||'---'; $('fuelStart').value=state.fuelStart; $('fuelRemaining').value=state.fuelRemaining; $('modeTxt').textContent=state.mode; $('timeMode').value=state.mode; $('template').value=state.template||defaultTemplate;
+ $('timeRows').innerHTML=events.map(e=>`<div class="timeRow"><div><div class="label">${labels[e]}</div></div><input class="timeInput mono" inputmode="numeric" maxlength="4" id="t_${e}" value="${state.times[e]||''}" placeholder="----"><button class="editBtn" onclick="setNow('${e}')">NOW</button></div>`).join('');
+ events.forEach(e=>{$('t_'+e).addEventListener('input',ev=>{
+   const clean=ev.target.value.replace(/\D/g,'').slice(0,4);
+   ev.target.value=clean;
+   if(clean) state.times[e]=clean; else delete state.times[e];
+   updateDerived();
+ })});
+ $('refFuelRemaining').value=state.fuelRemaining; calcRefuel(); updateDerived();
+}
+function setNow(e){state.last={e,val:state.times[e]}; state.times[e]=nowHHMM(); save(); render(); toast(`${labels[e]} enregistré ${fmt(state.times[e])}`)}
+function calcRefuel(){const rem=+$('refFuelRemaining').value||0, req=+$('fuelRequired').value||0, den=parseFloat($('density').value)||0.785, lit=parseFloat($('litresAdded').value)||0; const qty=Math.max(req-rem,0), litres=den?qty/den:0, added=lit*den, final=rem+added; $('qtyKg').textContent=Math.round(qty)+' kg'; $('litresReq').textContent=Math.ceil(litres)+' L'; $('fuelAddedKg').textContent=Math.round(added)+' kg'; $('finalFuel').textContent=Math.round(final)+' kg'; const ok=final>=req && req>0; $('targetBox').className='okBox '+(ok?'ok':'bad'); $('targetBox').textContent=ok?'✓ TARGET REACHED':'BELOW TARGET';}
+function renderLegs(){ if(state.legs.length===0){$('legsList').innerHTML='<div class="small">Aucune étape validée pour le moment.</div>'; return;} $('legsList').innerHTML=state.legs.map((l,i)=>`<div class="card" style="margin:8px 0;background:#101116"><div class="row"><b>${i+1}. ${l.dep} → ${l.arr}</b><span class="success">DONE</span></div><div class="small mono">Flight ${durFmt(l.flightMin)} / Block ${durFmt(l.blockMin)} / Fuel ${l.fuelRemaining} kg</div></div>`).join('')}
+['dep','arr','fuelStart','fuelRemaining'].forEach(id=>$(id).addEventListener('input',e=>{
+  const val=(id==='dep'||id==='arr') ? e.target.value.toUpperCase().slice(0,3) : e.target.value;
+  e.target.value=val; state[id]=val;
+  if(id==='dep') $('depTxt').textContent=val||'---';
+  if(id==='arr') $('arrTxt').textContent=val||'---';
+  if(id==='fuelRemaining') { $('refFuelRemaining').value=val; calcRefuel(); }
+  updateDerived();
+}));
+$('mainBtn').onclick=()=>{const step=currentStep(); if(step===-1){toast('Étape complète');return;} setNow(events[step]);};
+$('undoBtn').onclick=()=>{if(state.last){ if(state.last.val) state.times[state.last.e]=state.last.val; else delete state.times[state.last.e]; state.last=null; save(); render(); toast('Annulé')}};
+$('sendOps').onclick=async()=>{try{await navigator.clipboard.writeText(opsMessage()); toast('OPS message copied')}catch(e){toast('Copie impossible — sélectionne le message')}};
+$('nextLeg').onclick=()=>{ if(!state.times.blockOn){toast('Block-On manquant'); return;} const leg={dep:state.dep,arr:state.arr,fuelStart:state.fuelStart,fuelRemaining:state.fuelRemaining,times:{...state.times},flightMin:flightMin(),blockMin:blockMin()}; state.legs.push(leg); state.dep=state.arr; state.arr=''; state.fuelStart=state.fuelRemaining||state.fuelStart; state.fuelRemaining=''; state.times={}; state.last=null; save(); showTab('flight'); render(); toast('Next leg ready')};
+$('resetAll').onclick=()=>{if(confirm('Reset rotation ?')){localStorage.removeItem('legflow-v3'); location.reload();}};
+$('refFuelRemaining').addEventListener('input',()=>{
+  state.fuelRemaining=$('refFuelRemaining').value;
+  $('fuelRemaining').value=state.fuelRemaining;
+  calcRefuel(); updateDerived();
+});
+['fuelRequired','density','litresAdded'].forEach(id=>$(id).addEventListener('input',calcRefuel));
+$('applyRefuel').onclick=()=>{const final=Math.round((+$('refFuelRemaining').value||0)+((parseFloat($('litresAdded').value)||0)*(parseFloat($('density').value)||0.785))); state.fuelRemaining=String(final); state.fuelStart=String(final); save(); render(); toast('Fuel updated')};
+$('saveSettings').onclick=()=>{state.mode=$('timeMode').value; state.template=$('template').value; save(); render(); toast('Settings saved')};
+function showTab(tab){document.querySelectorAll('.view').forEach(v=>v.classList.add('hide')); $(tab).classList.remove('hide'); document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
+render();
+</script>
+</body>
+</html>
